@@ -41,6 +41,12 @@ public class UserServlet extends HttpServlet {
                 case "delete":
                     deleteUser(request, response);
                     break;
+                case "find":
+                    findByCountry(request, response);
+                    break;
+                case "sort":
+                    sortByName(request, response);
+                    break;
                 default:
                     listUser(request, response);
                     break;
@@ -48,6 +54,28 @@ public class UserServlet extends HttpServlet {
         } catch (ServletException e) {
             throw new RuntimeException(e);
         } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    private void sortByName(HttpServletRequest request, HttpServletResponse response) {
+        List<User> users = this.userService.sortByName();
+        request.setAttribute("listUser", users);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("user/view.jsp");
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException | IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private void findByCountry(HttpServletRequest request, HttpServletResponse response) {
+        String country = request.getParameter("country");
+        List<User> listUser = this.userService.findByCountry(country);
+        request.setAttribute("users", listUser);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("user/searchResult.jsp");
+        try {
+            dispatcher.forward(request, response);
+        } catch (ServletException | IOException e) {
             throw new RuntimeException(e);
         }
     }

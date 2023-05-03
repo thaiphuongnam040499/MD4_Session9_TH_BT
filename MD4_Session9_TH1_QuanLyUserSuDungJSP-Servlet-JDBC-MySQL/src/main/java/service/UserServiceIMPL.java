@@ -17,6 +17,8 @@ public class UserServiceIMPL implements IUserService{
     private static final String SELECT_ALL_USERS = "select * from user";
     private static final String DELETE_USERS_SQL = "delete from user where id = ?;";
     private static final String UPDATE_USERS_SQL = "update user set name = ?,email= ?, country =? where id = ?;";
+    private  static final String FIND_BY_COUNTRY = "select * from user where country = ?";
+    private static final String SORT_BY_NAME_ASC = "select * from user order by name asc";
     public UserServiceIMPL() {
     }
 
@@ -133,6 +135,53 @@ public class UserServiceIMPL implements IUserService{
         return rowUpdated;
 
     }
+
+    @Override
+    public List<User> findByCountry(String country) {
+        List<User> users = new ArrayList<>();
+        Connection conn = null;
+        User user;
+        try {
+            conn = getConnection();
+            PreparedStatement st = conn.prepareStatement(FIND_BY_COUNTRY);
+            st.setString(1, country);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String country1 = rs.getString("country");
+                user = new User(id, name, email, country1);
+                users.add(user);
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return users;
+    }
+
+    @Override
+    public List<User> sortByName() {
+        Connection conn = null;
+        List<User> user= new ArrayList<>();
+        try {
+            conn = getConnection();
+            Statement st = conn.createStatement();
+            ResultSet rs = st.executeQuery(SORT_BY_NAME_ASC);
+            while (rs.next()) {
+                int id = rs.getInt("id");
+                String name = rs.getString("name");
+                String email = rs.getString("email");
+                String country = rs.getString("country");
+                user.add(new User(id, name, email, country));
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return user;
+    }
+
     private void printSQLException(SQLException ex) {
         for (Throwable e : ex) {
             if (e instanceof SQLException) {
